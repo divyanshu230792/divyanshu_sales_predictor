@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('static/images/sales-forecast-template-for-your-business.jpg'); /* Set the background image */
+            background-size: cover; /* Make sure the image covers the entire background */
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8); /* Slight white overlay for readability */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            width: 60%;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-size: 1.1em;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            font-size: 1em;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 1.1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sales Predictor </h1>
+
+        <!-- Form to input data -->
+        <form id="salesForm">
+            <div class="form-group">
+                <label for="TV">TV Advertising Budget ($):</label>
+                <input type="number" id="TV" name="TV" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Radio">Radio Advertising Budget ($):</label>
+                <input type="number" id="Radio" name="Radio" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Social_Media">Social Media Advertising Budget ($):</label>
+                <input type="number" id="Social_Media" name="Social_Media" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Influencer">Influencer:</label>
+                <select id="Influencer" name="Influencer" required>
+                    <!-- Influencer options will be dynamically loaded via API -->
+                </select>
+            </div>
+
+            <button type="submit">Predict Sales</button>
+        </form>
+
+        <!-- Result section -->
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // Fetch Influencer options on page load
+        window.onload = function() {
+            fetch('/Influencer_opt')
+                .then(response => response.json())
+                .then(data => {
+                    let influencerSelect = document.getElementById('Influencer');
+                    data.forEach(influencer => {
+                        let option = document.createElement('option');
+                        option.value = influencer;
+                        option.text = influencer;
+                        influencerSelect.appendChild(option);
+                    });
+                });
+        };
+
+        // Handle form submission
+        document.getElementById('salesForm').onsubmit = function(event) {
+            event.preventDefault();
+
+            // Gather form data
+            let formData = new FormData(this);
+
+            // Send POST request to predict sales
+            fetch('/sales_prediction', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = 
+                    'Predicted Sales for your product (in $): ' + data['Your_product_sales_prediction(in $)'];
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = 'Error predicting sales';
+            });
+        };
+    </script>
+
+</body>
+</html>
